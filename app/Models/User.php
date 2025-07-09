@@ -35,6 +35,10 @@ class User extends Authenticatable
         return $this->belongsToMany(EventsModel::class,'user_events','user_id','event_id');
     }
 
+    public function user_requests(){
+        return $this->hasMany(UserRequestModel::class,"user_id","id");
+    }
+
     /**
      * The attributes that should be hidden for serialization.
      *

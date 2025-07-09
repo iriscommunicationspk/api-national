@@ -16,6 +16,7 @@ class EventsModel extends Model
         "name",
         "description",
         "date",
+        "link",
         "is_active",
     ];
 

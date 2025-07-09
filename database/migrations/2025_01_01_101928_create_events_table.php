@@ -16,6 +16,7 @@ return new class extends Migration {
             $table->string('name');
             $table->string('description');
             $table->date('date');
+            $table->string('link')->nullable();
             $table->integer('is_active');
 
             $table->timestamps();
