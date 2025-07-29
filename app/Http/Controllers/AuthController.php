@@ -84,78 +84,105 @@ class AuthController extends Controller
     //  *
     //  * @return \Illuminate\Http\Response
     //  */
-    // public function handleOffice365Callback()
-    // {
-    //     try {
-    //         $microsoftUser = Socialite::driver('microsoft')->user();
+  public function handleOffice365Callback()
+{
+    try {
+        // Retrieve user from Microsoft using Socialite
+        $microsoftUser = Socialite::driver('microsoft')->stateless()->user();
 
-    //         // Find user by email or create a new one
-    //         $user = User::where('email', $microsoftUser->email)->first();
+        // Find existing user by email
+        $user = User::where('email', $microsoftUser->getEmail())->first();
 
-    //         if (!$user) {
-    //             // Create a new user if they don't exist
-    //             $user = User::create([
-    //                 'name' => $microsoftUser->name,
-    //                 'email' => $microsoftUser->email,
-    //                 'password' => Hash::make(Str::random(16)), // Random secure password
-    //                 'microsoft_id' => $microsoftUser->id,
-    //             ]);
-    //         } else {
-    //             // Update microsoft_id for existing user if not set
-    //             if (empty($user->microsoft_id)) {
-    //                 $user->microsoft_id = $microsoftUser->id;
-    //                 $user->save();
-    //             }
-    //         }
+        if (!$user) {
+            // Create a new user if not found
+            $user = User::create([
+                'name' => $microsoftUser->getName() ?? 'Microsoft User',
+                'email' => $microsoftUser->getEmail(),
+                'password' => Hash::make(Str::random(16)),
+                'microsoft_id' => $microsoftUser->getId(),
+            ]);
+        } else {
+            // Update microsoft_id if missing
+            if (empty($user->microsoft_id)) {
+                $user->microsoft_id = $microsoftUser->getId();
+                $user->save();
+            }
+        }
 
-    //         // Create token for the user
-    //         $token = $this->generateUserToken($user);
+        // Generate token (assuming you have this method)
+        $token = $this->generateUserToken($user);
 
-    //         // Redirect to frontend with token
-    //         $frontendUrl = config('app.frontend_url', env('FRONTEND_URL', 'http://localhost:5173'));
+        // Frontend redirect URL
+        $frontendUrl = config('app.frontend_url', env('FRONTEND_URL', 'http://localhost:5173'));
 
-    //         return redirect()->away($frontendUrl . '/auth-callback?token=' . $token . '&user=' . urlencode(json_encode($user)));
-    //     } catch (\Exception $e) {
-    //         // Redirect to frontend with error
-    //         $frontendUrl = config('app.frontend_url', env('FRONTEND_URL', 'http://localhost:5173'));
-    //         return redirect()->away($frontendUrl . '/login?error=' . urlencode($e->getMessage()));
-    //     }
-    // }
+        return redirect()->away($frontendUrl . '/auth-callback?token=' . $token . '&user=' . urlencode(json_encode([
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+        ])));
 
+    } catch (\Exception $e) {
+        // Redirect to frontend with error message
+        $frontendUrl = config('app.frontend_url', env('FRONTEND_URL', 'http://localhost:5173'));
+        return redirect()->away($frontendUrl . '/login?error=' . urlencode("OAuth Failed: " . $e->getMessage()));
+    }
+}
+
+
+
+// public function handleOffice365Callback()
+// {
+//     try {
+//         $microsoftUser = Socialite::driver('microsoft')->stateless()->user();
+
+//         // Dump the user object temporarily to inspect it
+//         dd($microsoftUser);
+
+//     } catch (\Exception $e) {
+//         \Log::error('Microsoft OAuth Error', [
+//             'message' => $e->getMessage(),
+//             'trace' => $e->getTraceAsString(),
+//             'code' => $e->getCode(),
+//             'url' => request()->fullUrl(),
+//         ]);
+
+//         return response()->json(['error' => 'OAuth Failed: ' . $e->getMessage()], 500);
+//     }
+// }
 
     public function redirectToOffice365()
     {
         return Socialite::driver('microsoft')->redirect();
     }
 
-    public function handleOffice365Callback(Request $request)
-    {
-        try {
-            // Optional: log for debug
-            // \Log::info('Microsoft callback response', $request->all());
+    // public function handleOffice365Callback(Request $request)
+    // {
+    //     try {
+    //         // Optional: log for debug
+    //         // \Log::info('Microsoft callback response', $request->all());
 
-            // This line triggers the token exchange with Microsoft
-            $microsoftUser = Socialite::driver('microsoft')->user();
+    //         // This line triggers the token exchange with Microsoft
+    //         $microsoftUser = Socialite::driver('microsoft')->user();
 
-            // Create or find user
-            $user = User::firstOrCreate(
-                ['email' => $microsoftUser->getEmail()],
-                [
-                    'name' => $microsoftUser->getName(),
-                    'password' => bcrypt(str()->random(16)), // placeholder
-                ]
-            );
+    //         // Create or find user
+    //         $user = User::firstOrCreate(
+    //             ['email' => $microsoftUser->getEmail()],
+    //             [
+    //                 'name' => $microsoftUser->getName(),
+    //                 'password' => bcrypt(str()->random(16)), // placeholder
+    //             ]
+    //         );
 
-            // Login
-            Auth::login($user);
+    //         // Login
+    //         Auth::login($user);
 
-            return redirect('/dashboard');
-        } catch (\Exception $e) {
-            // dd($e);
+    //         return redirect('/dashboard');
+    //     } catch (\Exception $e) {
+    //         // dd($e);
 
-            return redirect('/login')->with('error', 'Office 365 login failed: ' . $e->getMessage());
-        }
-    }
+    //         return redirect('/login')->with('error', 'Office 365 login failed: ' . $e->getMessage());
+    //     }
+    // }
 
     public function logout(Request $request)
     {
