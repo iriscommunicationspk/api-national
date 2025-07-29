@@ -25,18 +25,22 @@ class User extends Authenticatable
         'password',
         'is_active',
         'role',
+        'microsoft_id',
     ];
 
-    public function user_events(){
-        return $this->hasMany(UsersEventsModel::class,"user_id","id");
+    public function user_events()
+    {
+        return $this->hasMany(UsersEventsModel::class, "user_id", "id");
     }
 
-    public function events(){
-        return $this->belongsToMany(EventsModel::class,'user_events','user_id','event_id');
+    public function events()
+    {
+        return $this->belongsToMany(EventsModel::class, 'user_events', 'user_id', 'event_id');
     }
 
-    public function user_requests(){
-        return $this->hasMany(UserRequestModel::class,"user_id","id");
+    public function user_requests()
+    {
+        return $this->hasMany(UserRequestModel::class, "user_id", "id");
     }
 
     /**

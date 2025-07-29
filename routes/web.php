@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AuthController;
 
 /*
 |--------------------------------------------------------------------------
@@ -12,6 +13,10 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
+
+// Office 365 Authentication Routes with session support
+Route::get('auth/office365', [AuthController::class, 'redirectToOffice365']);
+Route::get('api/auth/office365/callback', [AuthController::class, 'handleOffice365Callback']);
 
 Route::get('/', function () {
     return view('welcome');

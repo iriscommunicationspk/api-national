@@ -24,6 +24,8 @@ Route::get('/test', function (Request $request) {
 });
 
 Route::post('/login', [AuthController::class, 'Login']);
+// // // Office 365 Authentication Routes
+// Route::get('/auth/office365', [AuthController::class, 'redirectToOffice365']);
 
 Route::middleware('auth:sanctum')->group(function () {
 
