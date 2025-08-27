@@ -122,6 +122,8 @@ class AuthController extends Controller
         ])));
 
     } catch (\Exception $e) {
+
+       // dd($e->getMessage(), request()->all());
         // Redirect to frontend with error message
         $frontendUrl = config('app.frontend_url', env('FRONTEND_URL', 'http://localhost:5173'));
         return redirect()->away($frontendUrl . '/login?error=' . urlencode("OAuth Failed: " . $e->getMessage()));
@@ -150,11 +152,24 @@ class AuthController extends Controller
 //     }
 // }
 
-    public function redirectToOffice365()
-    {
-        return Socialite::driver('microsoft')->redirect();
-    }
+    // public function redirectToOffice365()
+    // {
+    //     return Socialite::driver('microsoft')->redirect();
+    // }
 
+    // public function redirectToOffice365()
+    // {
+    //     return Socialite::driver('microsoft')
+    //         ->with(['tenant' => config('services.microsoft.tenant_id')])
+    //         ->redirect();
+    // }
+
+       public function redirectToOffice365()
+{
+    return Socialite::driver('microsoft')
+        ->with(['tenant' => config('services.microsoft.tenant')]) // enforce single tenant
+        ->redirect();
+}
     // public function handleOffice365Callback(Request $request)
     // {
     //     try {

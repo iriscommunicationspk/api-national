@@ -34,7 +34,9 @@ return [
     'microsoft' => [
         'client_id' => env('MICROSOFT_CLIENT_ID'),
         'client_secret' => env('MICROSOFT_CLIENT_SECRET'),
-        'redirect' => env('MICROSOFT_REDIRECT_URI', '/api/auth/office365/callback'),
+        'redirect' => env('MICROSOFT_REDIRECT_URI'),
+        'tenant' => env('MICROSOFT_TENANT', '3953756b-80d0-4171-a6b0-6e36c763297f'),
+
     ],
 
 ];
